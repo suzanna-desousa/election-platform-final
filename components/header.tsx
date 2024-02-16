@@ -20,7 +20,7 @@ export function Header() {
       <nav className="ml-auto flex items-center space-x-4">
         <Link
           className="font-medium underline border-b-2 border-transparent hover:border-gray-900 hover:text-gray-900"
-          href="/vote"
+          href="/"
         >
           View Live Poll
         </Link>

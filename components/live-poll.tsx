@@ -10,8 +10,7 @@
 "use client";
   import { CardTitle, CardDescription, CardHeader, CardContent, Card } from "@/components/ui/card"
   import Progress from "@/components/ui/progressbar"
-  import Image from 'next/image';
-  import { getFirestore, collection, getDocs } from 'firebase/firestore';
+  import { collection, getDocs } from 'firebase/firestore';
   import {db} from '@/app/firebase/config'
   import { useEffect, useState } from 'react';
 
@@ -37,7 +36,7 @@
             name: doc.data().name,
             imageSrc: doc.data().imageSrc,
             votes: doc.data().votes,
-            percentage: 0,  // You can set it to 0 initially and update it later
+            percentage: 0,
           }));
   
           // Calculate the percentage or any other relevant data here
