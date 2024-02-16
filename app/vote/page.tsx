@@ -5,6 +5,7 @@
  import { CardTitle, CardDescription, CardContent, CardFooter, Card } from "@/components/ui/card"
  import { Button } from "@/components/ui/button"
  import { Header } from "@/components/header"
+ import Image from 'next/image';
  
  export function Vote() {
    return (
@@ -17,11 +18,11 @@
              <div className="flex flex-col h-full">
                <CardContent className="flex-1">
                  <div className="flex justify-center items-center h-[200px]">
-                   <img
+                   <Image
                      alt="Image"
                      className="rounded-full"
                      height="150"
-                     src="/placeholder.svg"
+                     src="/images/vanilla.jpg"
                      style={{
                        aspectRatio: "150/150",
                        objectFit: "cover",

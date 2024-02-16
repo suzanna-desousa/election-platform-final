@@ -5,6 +5,7 @@
 import LivePoll from"@/components/live-poll"
 import { Header } from"@/components/header"
 
+
 export default function Home() {
   return (
     <div>
