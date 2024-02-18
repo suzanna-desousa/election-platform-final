@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Election Platform
+
+Welcome to the Election Platform application! This platform is built using Next.js and follows an MVC architecture, incorporating Firebase for authentication and data storage. The application allows users to register, log in, and participate in an election where they can vote for their favorite ice cream flavor candidates.
 
 ## Getting Started
 
-First, run the development server:
+### System Requirements
+
+Before you begin, make sure your system meets the following requirements:
+
+- Node.js 18.17 or later
+- Supported operating systems: macOS, Windows (including WSL), and Linux
+
+### Installation
+
+To get started, follow these steps:
+
+1. Open your terminal and run the following commands:
+
+```bash
+git clone https://github.com/suzanna-desousa/election-platform-final.git
+cd election-platform-final
+npm install
+```
+
+## Running the App
+
+To run the application locally, use the following commands:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to access the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## MVC Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+The application follows an MVC (Model-View-Controller) architecture:
 
-## Learn More
+- **Models:** The `UserModel` represents a user (voter), and the `CandidateModel` represents a candidate (ice cream flavor).
+- **Controllers:** The `UserController` manages user-related logic, while the `CandidateController` handles candidate-related logic.
+- **Views:** The `pages` folder serves as the view, and the `components` folder stores UI components.
 
-To learn more about Next.js, take a look at the following resources:
+## Database and Authentication
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The application utilizes Firebase for authentication and data storage:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Firebase Authentication is used for user registration and login.
+- Firebase Firestore is employed to store user and candidate information.
 
-## Deploy on Vercel
+## Frontend
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The frontend is designed using [https://v0.dev/](https://v0.dev/) templates to ensure a visually appealing and user-friendly experience.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Data Validation
+
+Data validation is implemented to ensure the security and integrity of user information:
+
+- Passwords must be at least 8 characters long, contain at least 1 capital letter, and include at least 1 number.
+- Email addresses are validated against the standard format, and email domains are verified using MailCheck.ai.
+
+## Version Control
+
+The project is version-controlled using GitHub. Feel free to explore the repository at [https://github.com/suzanna-desousa/election-platform-final](https://github.com/suzanna-desousa/election-platform-final).
