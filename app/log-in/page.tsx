@@ -11,8 +11,10 @@
  import { JSX, useState } from "react"
  import { Header } from "@/components/header"
  import {useSignInWithEmailAndPassword} from 'react-firebase-hooks/auth'
-import {auth} from '@/app/firebase/config'
+import {auth, db} from '@/app/firebase/config'
 import { useRouter } from 'next/navigation';
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { signOut } from "firebase/auth";
  
  export function LogIn() {
 
@@ -23,18 +25,75 @@ import { useRouter } from 'next/navigation';
 
   const handleLogIn = async () => {
     try {
-
+        // Attempt to sign in with email and password
         const res = await signInWithEmailAndPassword(email, password);
-        console.log({res});
-        setEmail('');
-        setPassword('');
-        alert("Successfully logged in.")
-        router.push('/vote')
 
-    }catch(e){
-        console.error(e)
-    }
+        if (res !== undefined) {
+            // Handle the case when 'result' is an instance of UserCredentialImpl
+            console.log('Authentication successful!', res.user);
+
+            
+            const email = res.user.email;
+
+            try {
+                
+            const querySnapshot = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+            
+                if (!querySnapshot.empty) {
+                    // Assuming there is only one document for a given email
+                    const userDocSnapshot = querySnapshot.docs[0];
+                    const firestoreUid = userDocSnapshot.id;
+
+                    const userDocRef = doc(db, 'users', firestoreUid);
+                    const userDoc = await getDoc(userDocRef);
+
+                    if (userDoc.exists() && userDoc.data()?.voted) {
+                    // Redirect user to index page if already voted
+                        alert("You have already voted!")
+
+                        signOut(auth).then(() => {
+                            alert("You have been signed out.")
+                        }).catch((error) => {
+                            // An error happened.
+                        });
+                        
+                        router.push('/');
+                    } else {
+                    // Redirect user to vote page if not voted yet
+                        router.push('/vote');
+                    }
+
+                    setEmail('');
+                    setPassword('');
+
+                } else {
+                    console.error('User document not found in Firestore for email:', email);
+                }
+            } catch (error) {
+            console.error('Error fetching user document from Firestore:', error);
+            }
+
+    
+
+          } else {
+            // Handle other cases, e.g., when 'res' is undefined
+            alert('Authentication failed. Please try again.');
+          }
+
+      } catch (e) {
+        if (
+            typeof e === "object" &&
+            e 
+          ) {
+            // message gets narrowed to string!
+            console.log((e as { message: string }).message);
+ 
+          }
+        
+      }
   };
+
+  
   
    return (
      <div>

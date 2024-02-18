@@ -25,8 +25,46 @@ import {db} from '@/app/firebase/config'
 
     const router = useRouter();
 
-    const submitRegistration = async () => {
+    const validateEmail = (email: string) => {
+      // Use a regular expression for basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    };
+
+    const validatePassword = (password: string) => {
+      // Password must be at least 8 characters long
+      if (password.length < 8) {
+        alert("Password must be at least 8 characters long.");
+        return false;
+      }
     
+      // Password must contain at least 1 capital letter
+      if (!/[A-Z]/.test(password)) {
+        alert("Password must contain at least 1 capital letter.");
+        return false;
+      }
+    
+      // Password must contain at least 1 number
+      if (!/\d/.test(password)) {
+        alert("Password must contain at least 1 number.");
+        return false;
+      }
+    
+      // All criteria are met
+      return true;
+    };
+    
+
+    const submitRegistration = async () => {
+
+        if (!validateEmail(email)) {
+          alert("Invalid email format. Please enter a valid email address.");
+          return;
+        }
+    
+        if (!validatePassword(password)) {``
+          return;
+        }
         const domain = email.split("@")[1];
 
         try {
@@ -46,6 +84,7 @@ import {db} from '@/app/firebase/config'
             setPassword('')
             console.log({res})
 
+
             const docRef = await addDoc(collection(db, "users"), {
               email: email,
               voted: false
@@ -53,7 +92,7 @@ import {db} from '@/app/firebase/config'
 
 
             alert("Successfully signed up.")
-            router.push('/vote');
+            router.push('/log-in');
           } else {
             alert("Invalid email. Try again.");
           }

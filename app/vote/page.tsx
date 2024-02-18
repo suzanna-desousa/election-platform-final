@@ -7,14 +7,16 @@
  import { Button } from "@/components/ui/button"
  import { Header } from "@/components/header"
  import Image from 'next/image';
- import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from '@/app/firebase/config';
+ import { collection, doc, getDocs, updateDoc, query, where } from 'firebase/firestore';
+import { auth, db } from '@/app/firebase/config';
 import { useEffect, useState } from "react";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import router from "next/router";
  
 interface Candidate {
   id: string;
   name: string;
-  imageSrc: string;
+  image: string;
   votes: number;
 
 }
@@ -28,7 +30,7 @@ const getCandidatesData = async () => {
     const candidatesData = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       name: doc.data().name,
-      imageSrc: doc.data().imageSrc,
+      image: doc.data().image,
       votes: doc.data().votes,
     }));
 
@@ -42,6 +44,8 @@ const getCandidatesData = async () => {
  export function Vote() {
 
    const [candidates, setCandidates] = useState<Candidate[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [user, setUser] = useState<User | null>(null);
 
    useEffect(() => {
     const fetchData = async () => {
@@ -50,34 +54,91 @@ const getCandidatesData = async () => {
     };
 
     fetchData();
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+
+    return () => {
+      // Unsubscribe the observer when the component unmounts
+      unsubscribe();
+    };
+    
   }, []);
   
-  const handleVoteClick = async (candidateId: string) => {
+    const handleVoteClick = async (candidateId: string) => {
    
-    try {
-      // Update the votes for the candidate in Firestore
-      const candidateRef = doc(db, 'candidates', candidateId);
-      
-      const foundCandidate = candidates.find((candidate) => candidate.id === candidateId);
+      try {
 
-      if (foundCandidate) {
-        await updateDoc(candidateRef, {
-          votes: foundCandidate.votes + 1,
-        });
-      } 
+        if (!user) {
+          console.error('User not authenticated.');
+          return;
+        }
 
-      // Update the local state to reflect the new vote count
-      setCandidates((prevCandidates) =>
-        prevCandidates.map((candidate) =>
-          candidate.id === candidateId
-            ? { ...candidate, votes: candidate.votes + 1 }
-            : candidate
-        )
-      );
-    } catch (error) {
-      console.error('Error updating votes:');
-    }
+        console.log('Current user:', user.uid);
+        // Update the votes for the candidate in Firestore
+        const candidateRef = doc(db, 'candidates', candidateId);
+        const foundCandidate = candidates.find((candidate) => candidate.id === candidateId);
+
+        if (foundCandidate) {
+          await updateDoc(candidateRef, {
+            votes: foundCandidate.votes + 1,
+          });
+        } 
+
+        // Update the local state to reflect the new vote count
+        setCandidates((prevCandidates) =>
+          prevCandidates.map((candidate) =>
+            candidate.id === candidateId
+              ? { ...candidate, votes: candidate.votes + 1 }
+              : candidate
+          )
+        );
+
+        // Assuming user is the Firebase Authentication user object
+        const email = user.email;
+
+        try {
+          const querySnapshot = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+          
+          if (!querySnapshot.empty) {
+            // Assuming there is only one document for a given email
+            const userDocSnapshot = querySnapshot.docs[0];
+            const firestoreUid = userDocSnapshot.id;
+            const userDocRef = doc(db, 'users', firestoreUid);
+
+            try {
+              await updateDoc(userDocRef, {
+                voted: true,
+              });
+
+              alert('Vote successful!');
+              signOut(auth).then(() => {
+                alert("You have been signed out.")
+              }).catch((error) => {
+                // An error happened.
+              });
+              //router.push('/');
+              window.location.href = '/';
+
+            } catch (error) {
+              console.error('Error updating voted status:', error);
+              // Check the error message for more details
+            }
+
+          } else {
+            console.error('User document not found in Firestore for email:', email);
+          }
+        } catch (error) {
+          console.error('Error fetching user document from Firestore:', error);
+        }
+
+      } catch (error) {
+        console.error('Error updating votes:');
+      }
+
   };
+
    
   return (
     <div>
@@ -94,7 +155,7 @@ const getCandidatesData = async () => {
                         alt="Image"
                         className="rounded-full"
                         height="150"
-                        src={candidate.imageSrc}
+                        src={candidate.image}
                         style={{
                           aspectRatio: "150/150",
                           objectFit: "cover",

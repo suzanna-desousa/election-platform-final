@@ -60,8 +60,8 @@
         <div className="w-full max-w-sm">
           <Card>
             <CardHeader className="flex flex-col gap-1">
-              <CardTitle>Who should win the election?</CardTitle>
-              <CardDescription>Cast your vote for the best candidate!</CardDescription>
+              <CardTitle>Which is the bext ice cream flavour?</CardTitle>
+              <CardDescription>Cast your vote for the best flavour!</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               {candidates.map((candidate, index) => (
