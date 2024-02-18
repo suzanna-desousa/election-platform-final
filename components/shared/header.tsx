@@ -26,13 +26,13 @@ export function Header() {
         </Link>
         <Link
           className="inline-flex items-center justify-center h-9 w-24 border border-gray-200 border-gray-200 font-medium rounded-md bg-white shadow-sm hover:shadow transition-colors hover:bg-gray-100 hover:text-gray-900 dark:border-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-950"
-          href="/log-in"
+          href="/pages/log-in"
         >
           Log In
         </Link>
         <Link
           className="inline-flex items-center justify-center h-9 w-32 border border-gray-200 border-gray-200 font-medium rounded-md bg-gray-900 text-gray-50 shadow-sm hover:shadow transition-colors hover:bg-gray-100 hover:text-gray-900 dark:border-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-950"
-          href="/sign-up"
+          href="/pages/sign-up"
         >
           Register to Vote
         </Link>
