@@ -7,6 +7,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { getDoc, getDocs, query, where, doc } from 'firebase/firestore';
 import { signOut } from "firebase/auth";
+import { UserModel } from '@/models/UserModel';
 
 export const useUserController = () => {
   const router = useRouter();
@@ -15,6 +16,10 @@ export const useUserController = () => {
 
   const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
   const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
+
+  // Use UserModel to represent user data
+  const [currentUser, setCurrentUser] = useState<UserModel | null>(null);
+
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -70,6 +75,14 @@ export const useUserController = () => {
           voted: false,
         });
 
+        const newUser: UserModel = {
+          id: docRef.id,
+          email: email,
+          voted: false,
+        };
+  
+        setCurrentUser(newUser); 
+
         alert("Successfully signed up.");
         router.push('/pages/log-in');
       } else {
@@ -91,37 +104,49 @@ export const useUserController = () => {
 
         try {
           const querySnapshot = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
-
+  
           if (!querySnapshot.empty) {
             const userDocSnapshot = querySnapshot.docs[0];
             const firestoreUid = userDocSnapshot.id;
-
+  
             const userDocRef = doc(db, 'users', firestoreUid);
             const userDoc = await getDoc(userDocRef);
-
-            if (userDoc.exists() && userDoc.data()?.voted) {
-              alert("You have already voted!");
-
-              signOut(auth).then(() => {
-                alert("You have been signed out.");
-              }).catch((error) => {
-                console.error("Error signing out:", error);
-              });
-
-              router.push('/');
+  
+            if (userDoc.exists()) {
+              const userModel: UserModel = {
+                id: firestoreUid,
+                email: userDoc.data()?.email || null,
+                voted: userDoc.data()?.voted || false,
+              };
+  
+              setCurrentUser(userModel); // Set the current user using UserModel
+  
+              if (userModel.voted) {
+                alert("You have already voted!");
+  
+                signOut(auth).then(() => {
+                  alert("You have been signed out.");
+                }).catch((error) => {
+                  console.error("Error signing out:", error);
+                });
+  
+                router.push('/');
+              } else {
+                router.push('/pages/vote');
+              }
+  
+              setEmail('');
+              setPassword('');
             } else {
-              router.push('/pages/vote');
+              console.error('User document not found in Firestore for email:', email);
             }
-
-            setEmail('');
-            setPassword('');
-
           } else {
             console.error('User document not found in Firestore for email:', email);
           }
         } catch (error) {
           console.error('Error fetching user document from Firestore:', error);
         }
+
 
       } else {
         alert('Authentication failed. Please try again.');
